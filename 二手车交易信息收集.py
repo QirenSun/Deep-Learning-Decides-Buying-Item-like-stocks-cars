@@ -8,10 +8,11 @@ import operator
 from collections import OrderedDict
 import datetime
 import random
-
+url='https://www.autotrader.com/cars-for-sale/BMW/328i+xDrive/Brighton+MA-02135?zip=02135&marketExtension=true&startYear=1981&endYear=2019&makeCodeList=BMW&searchRadius=50&seriesCodeList=3_SERIES&modelCodeList=328IXD%2C328XI&sortBy=relevance&numRecords=100&firstRecord=0'
+#url='https://www.autotrader.com/cars-for-sale/Nissan/Brighton+MA-02135?zip=02135&marketExtension=true&startYear=2010&endYear=2019&makeCodeList=NISSAN&searchRadius=50&maxPrice=15000&minPrice=10000&sortBy=relevance&numRecords=100&firstRecord=0'
 #url='https://www.autotrader.com/cars-for-sale/BMW/X6/Brighton+MA-02135?zip=02135&marketExtension=true&startYear=1981&endYear=2019&makeCodeList=BMW&searchRadius=50&modelCodeList=X6&sortBy=relevance&numRecords=100&firstRecord=0'
 #url='https://www.autotrader.com/cars-for-sale/Audi/Q7/Brighton+MA-02135?zip=02135&marketExtension=true&startYear=1981&endYear=2019&makeCodeList=AUDI&searchRadius=50&modelCodeList=Q7&sortBy=relevance&numRecords=100&firstRecord=0'
-url='https://www.autotrader.com/cars-for-sale/MINI/Cooper/Brighton+MA-02135?zip=02135&marketExtension=true&startYear=1981&endYear=2019&makeCodeList=MINI&searchRadius=50&modelCodeList=COOPER&sortBy=relevance&numRecords=100&firstRecord=0'
+#url='https://www.autotrader.com/cars-for-sale/MINI/Cooper/Brighton+MA-02135?zip=02135&marketExtension=true&startYear=1981&endYear=2019&makeCodeList=MINI&searchRadius=50&modelCodeList=COOPER&sortBy=relevance&numRecords=100&firstRecord=0'
 headers={'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
          'Accept-Encoding': 'gzip, deflate, br',
          'Accept-Language': 'zh,en-US;q=0.9,en;q=0.8,zh-TW;q=0.7',
@@ -37,6 +38,8 @@ for n in range(10):
         if '$' in i:
             #print(i)
             mileages.remove(i)
+#没有里程数
+mileages.insert(0,' ')
 
 car=[]
 c=-1   
@@ -96,7 +99,7 @@ for i in str(mileage[9]):
    else:
        break
 print(a,b)
-""" 
+
 #计算2016年份二手车差价和英里数
 mon,mil,money,mileage=[],[],[],[]
 a=-1
@@ -118,5 +121,10 @@ for i in range(1,len(money)):
     print('Mileages:'+str(int(mileage[i-1])-int(mileage[i])))
     print('')
             
+"""
+
+#https://www.autotrader.com/cars-for-sale/Nissan/Brighton+MA-02135?zip=02135&marketExtension=true&startYear=1981&endYear=2019&makeCodeList=NISSAN&searchRadius=50&sortBy=relevance&numRecords=100&firstRecord=0
+#https://www.autotrader.com/cars-for-sale/Nissan/Brighton+MA-02135?zip=02135&marketExtension=true&startYear=1981&endYear=2019&makeCodeList=NISSAN&searchRadius=50&sortBy=relevance&numRecords=100&firstRecord=400
+
 
 
