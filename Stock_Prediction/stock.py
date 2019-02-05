@@ -29,7 +29,7 @@ def get_stock(ticker, start_date, end_date, s_window, l_window):
 
 ticker='S'
 start_date='2014-01-01'
-end_date='2018-12-31'
+end_date='2019-01-01'
 s_window = 14
 l_window = 50
 input_dir = 'C:\\Users\\Administrator\\Desktop\\Python_data'
@@ -48,83 +48,191 @@ with open(output_file) as f:
 
 
 #df_2 = pd.read_csv(output_file)
-date=[]
-W_day,all_w,week,l_week=[],[],[],[]
-for i in range(1,len(lines)-1):
-    W_day.append(str(lines[i+1].split(',')[4])+','+ str((eval(lines[i+1].split(',')[6])-eval(lines[i].split(',')[9])) / eval(lines[i].split(',')[9]) )
-    +','+str( (eval(lines[i+1].split(',')[5])-eval(lines[i].split(',')[9])) / eval(lines[i].split(',')[9]) )
-    +','+str( (eval(lines[i+1].split(',')[9])-eval(lines[i].split(',')[9])) / eval(lines[i].split(',')[9]) ))
-for i in range(1,len(lines)):
-    l_week.append(lines[i].split(',')[4])
-    date.append(lines[i].split(',')[0])
-   
-for i in range(1,len(lines)):
+
+
+# 1. Each day of the week compute average, min and max of daily returns
+def week_choose():
+    date=[]
+    W_day,volume,week,l_week=[],[],[],[]
+    avg=[]
+    for i in range(1,len(lines)-1):
+        W_day.append(str(lines[i+1].split(',')[4])+',      '+ str(format(100*(eval(lines[i+1].split(',')[6])-eval(lines[i].split(',')[9])) / eval(lines[i].split(',')[9]),'0.2f') )+'%'
+        +',  '+str( format(100*(eval(lines[i+1].split(',')[5])-eval(lines[i].split(',')[9])) / eval(lines[i].split(',')[9]),'0.2f') )+'%'
+        +',  '+str( format(100*(eval(lines[i+1].split(',')[9])-eval(lines[i].split(',')[9])) / eval(lines[i].split(',')[9]),'0.2f') )+'%')
+        
+        avg.append(format((eval(lines[i+1].split(',')[9])-eval(lines[i].split(',')[9])) / eval(lines[i].split(',')[9]),'0.4f'))
     
-    if lines[i].split(',')[4]=='Monday':
-        m=i
-    elif lines[i].split(',')[4]=='Friday':
-        n=i
-        if n-m<=4 & n-m>0:
-            week.append(date[m-1:n])
+    for i in range(1,len(lines)):
+        l_week.append(lines[i].split(',')[4])
+        date.append(lines[i].split(',')[0])
+        volume.append(lines[i].split(',')[8])
+    m=10   
+    
+    
+    
+    
+    for i in range(1,len(W_day)):
+        med,vol=[],0  
+        if W_day[i].split(',')[0]=='Monday':
+            m=i
+        elif W_day[i].split(',')[0]=='Friday':
+            n=i        
+            if n-m==4:
+                for d in range(m,n+1):
+                    med+=int(int(volume[d+1])/100000)*avg[d].split(' ')
+                    vol+=int(int(volume[d+1])/100000)
+                med=[eval(i) for i in med]
+                med.sort()
+                med=100*med[int(vol/2)]
+                            
+                for c in range(m,n+1):
+                    W_day[c]=W_day[c]+',  '+str(format(med,'0.2f'))+'%'
+    
+    W_day.insert(0,'Day of the week '+'min   '+'max   '+'average   '+'median  ')             
+    return W_day[:10]
+                              
+week_choose()            
+
+
+         
+# 2. For each month of the week, compute average, min and max of daily returns
+def month_choose():
+    ac,Min,Max,c,Min1,Max1,ac1=0,0,0,0,[],[],[]
+    volume1,vol1,month,month1=0,[],0,[]
+    date=[]
+    volume,week,l_week=[],[],[]
+    for i in range(1,len(lines)):
+        l_week.append(lines[i].split(',')[4])
+        date.append(lines[i].split(',')[0])
+        volume.append(lines[i].split(',')[8])
+    
+    for i in range(1,len(lines)-1):
+        if  int(lines[i+1].split(',')[3])>int(lines[i].split(',')[3]):
+           
+            ac+=  float(lines[i].split(',')[9])
+            Min+= float(lines[i].split(',')[6])          
+            Max+= float(lines[i].split(',')[5])
+            volume1+=int(int(volume[i-1])/100000)
+            c+=1
+        else:
+            ac1.append(format(float(ac)/c,'0.4f'))
+            Min1.append(format(float(Min)/c,'0.4f'))
+            Max1.append(format(float(Max)/c,'0.4f'))    
+            month1.append(lines[i].split(',')[2])
+            vol1.append(volume1)
+            ac,Min,Max,c,volume1=0,0,0,0,0
+            #lines[i].split(',')[2]+','+
+    
+    Min,Max,ac=[],[],[]
+    for i in range(len(ac1)-1):
+        Min.append(month1[i]+',  '+format(100*(float(Min1[i+1])-float(ac1[i]))/float(ac1[i]),'0.2f')+'%'
+                   +','+ format(100*(float(Max1[i+1])-float(ac1[i]))/float(ac1[i]),'0.2f')+'%'
+                   +','+ format(100*(float(ac1[i+1])-float(ac1[i]))/float(ac1[i]),'0.2f')+'%')
+        #Max.append(format(100*(float(Max1[i+1])-float(ac1[i]))/float(ac1[i]),'0.2f')+'%')    
+        #ac.append(format(100*(float(ac1[i+1])-float(ac1[i]))/float(ac1[i]),'0.2f')+'%')
+    med,med1=[],[]            
+    for i in range(len(month1)-1):
+        if int(month1[i+1])>int(month1[i]):
+            med.append(vol1[i]*(str(ac1[i])+' '))
+            if i==len(month1)-2:
+                med.append(vol1[i+1]*(str(ac1[i+1])+' '))
+                med1.append(med)
+        elif int(month1[i+1])<int(month1[i]):
+            med.append(vol1[i]*(str(ac1[i])+' '))
+            med1.append(med)
+            med=[]
+    
+    med3=[]
+    for i in range(len(med1)):
+        med2=[]
+        for m in range(len(med1[i])):
+            med2+=med1[i][m].split(' ')[:-1]        
+        med2=[float(i) for i in med2]
+        med2.sort()    
+        med3.append(med2[int(len(med2)/12)])
+    c,m=0,0
+    for i in range(len(Min)):
+        c+=1
+        if  c%12==0: 
+            m+=1
+            Min[i]+=','+str(med3[m])+'%'
+        else:
             
-    
-for i in range(1,len(W_day)):
-    weekday=W_day[i].split(',')[0]
-    all_w=[]
-    if weekday=='Monday':
-        med.append(i)
-        '''
-        for m in range(i,i+5):
-            all_w.append(W_day[m].split(',')[3])
-        all_w.sort()
-        med.append(all_w[2])
-    else:
-        '''
+            Min[i]+=','+str(med3[m])+'%'
+                
+    Min.insert(0,'Month '+'  min '+'  max '+'average '+'median')            
+    return Min            
+                
+month_choose()            
+            
 
-for i in range(len(med)):
-    if not med[i+1]-med[i]==5:
-        print(False)  
+# 3. After W consecutive declines, buy on day W ($100), sell on W+1
+# Buying at Date and Selling at Date+1. Geting profit/loss.
+def conse_declines(x):    
+    W=[]
+    for i in range(1,len(lines)-4):        
+            if float(lines[i+1].split(',')[9])-float(lines[i].split(',')[9])<0:
+                if float(lines[i+2].split(',')[9])-float(lines[i+1].split(',')[9])<0:   
+                    if float(lines[i+3].split(',')[9])-float(lines[i+2].split(',')[9])<0:
+                        W.append( str(lines[i+3].split(',')[0]) 
+                        +','+ str(format(float(lines[i+4].split(',')[9])-float(lines[i+3].split(',')[9]),'0.2f'))
+                        +',')
+    date,W_date,trades=[],[],[]
+    for i in range(1,len(lines)):
+        date.append(lines[i].split(',')[0])
+    for i in range(len(W)):
+        W_date.append(W[i].split(',')[0])
         
-#连续下降买入
-W=[]
-for i in range(1,len(lines)-3):        
-        if float(lines[i+1].split(',')[9])-float(lines[i].split(',')[9])<0:
-            if float(lines[i+2].split(',')[9])-float(lines[i+1].split(',')[9])<0:                
-                W.append( str(lines[i+2].split(',')[0]) 
-                +','+ str(float(lines[i+3].split(',')[9])-float(lines[i+2].split(',')[9]))
-                +',')
-date,W_date,trades=[],[],[]
-for i in range(1,len(lines)):
-    date.append(lines[i].split(',')[0])
-for i in range(len(W)):
-    W_date.append(W[i].split(',')[0])
     
-x=input("Enter Dates like 20xx-xx-xx:")
-
-for i in range(1,len(lines)):
-    if lines[i].split(',')[0]==x:      
-        for c in date[i:]:
-            for d in range(len(W_date)):            
-                if W_date[d]==c:
-                    trades.append((W[d:d+10]))
-profit=[]
-for i in range(10):
-    if float(trades[0][i].split(',')[1])>=0:
-        profit.append(trades[0][i].split(',')[0]+',   10,'+'   1,   '+trades[0][i].split(',')[1]+',   0'+',   0')
-    else:
-        profit.append(trades[0][i].split(',')[0]+',   10,'+'   0,'+'   0,  '+'1,    '+trades[0][i].split(',')[1])
-
-                    
-profit.insert(0,'W    Trades     profitable  Profit/Per trade   losing   Loss/Per trade')
-print(profit)
+    
+    for i in range(1,len(lines)):
+        if lines[i].split(',')[0]==x:      
+            for c in date[i:]:
+                for d in range(len(W_date)):            
+                    if W_date[d]==c:
+                        trades.append((W[d:d+10]))
+      
+            
+    profit=[]
+    for i in range(10):
+        if float(trades[0][i].split(',')[1])>=0:
+            profit.append(trades[0][i].split(',')[0]+',   10,'+'   10,      '+str(format(10*float(trades[0][i].split(',')[1]),'0.2f'))+',         0'+',   0')
+        else:
+            profit.append(trades[0][i].split(',')[0]+',   10,'+'   0,   '+format('   0','4s')+',      '+'      10,    '+str(format(10*float(trades[0][i].split(',')[1]),'0.2f')))
+    
                         
+    profit.insert(0,'Date        Trades     profit  Profit/Per  losing   Loss/Per trade')
+    return profit
+
+x=input("Enter Dates like 2014-01-02:")
+conse_declines(x)                            
                       
-        
+# 4. If adj close > s_ma then buy
+def buy_sell():
+    buy,sell=[],[]
+    for i in range(1,len(lines)):
+        if float(lines[i].split(',')[9]) > float(lines[i].split(',')[11]):
+            buy.append(lines[i].split(',')[0]+',  '+str(format(float(lines[i].split(',')[9]),'0.4f')))
+        else:
+            sell.append(lines[i].split(',')[0]+',  '+str(format(float(lines[i].split(',')[9]),'0.4f')))              
+    buy.insert(0,'Date        Buy')
+    sell.insert(0,'Date        Sell')
+    return buy[:20],sell[:20]
 
+buy_sell()    
 
+'''
+Week
+(Adjust_Close2-Adjust_Close1)/Adjust_Close1
+(High2-Adjust_Close1)/Adjust_Close1
+(Low2-Adjust_Close1)/Adjust_Close1
 
-
-
+Month
+Adjust_Close=Total Adjust_Close of the Month/Days
+(Adjust_Close2-Adjust_Close1)/Adjust_Close1
+(High2-Adjust_Close1)/Adjust_Close1
+(Low2-Adjust_Close1)/Adjust_Close1
+'''
 
 
 
