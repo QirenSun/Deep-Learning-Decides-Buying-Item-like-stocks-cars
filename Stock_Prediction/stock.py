@@ -50,10 +50,23 @@ with open(output_file) as f:
 #df_2 = pd.read_csv(output_file)
 
 
+
+'''
+Week
+(Adjust_Close2-Adjust_Close1)/Adjust_Close1
+(High2-Adjust_Close1)/Adjust_Close1
+(Low2-Adjust_Close1)/Adjust_Close1
+
+Month
+Adjust_Close=Total Adjust_Close of the Month/Days
+(Adjust_Close2-Adjust_Close1)/Adjust_Close1
+(High2-Adjust_Close1)/Adjust_Close1
+(Low2-Adjust_Close1)/Adjust_Close1
+'''
 # 1. Each day of the week compute average, min and max of daily returns
 def week_choose():
-    date=[]
-    W_day,volume,week,l_week=[],[],[],[]
+    date,best_day=[],[]
+    W_day,volume=[],[]
     avg=[]
     for i in range(1,len(lines)-1):
         W_day.append(str(lines[i+1].split(',')[4])+',      '+ str(format(100*(eval(lines[i+1].split(',')[6])-eval(lines[i].split(',')[9])) / eval(lines[i].split(',')[9]),'0.2f') )+'%'
@@ -75,21 +88,43 @@ def week_choose():
         med,vol=[],0  
         if W_day[i].split(',')[0]=='Monday':
             m=i
+            
         elif W_day[i].split(',')[0]=='Friday':
             n=i        
-            if n-m==4:
+            if n-m<=4 :
                 for d in range(m,n+1):
                     med+=int(int(volume[d+1])/100000)*avg[d].split(' ')
                     vol+=int(int(volume[d+1])/100000)
                 med=[eval(i) for i in med]
                 med.sort()
                 med=100*med[int(vol/2)]
-                            
+                max1={}            
                 for c in range(m,n+1):
                     W_day[c]=W_day[c]+',  '+str(format(med,'0.2f'))+'%'
+                    dict1={float(W_day[c].split(',')[3].lstrip().replace('%','')):c}
+                    max1.update(dict1)
+                m1=max(max1)
+                best_day.append(W_day[max1[m1]])
+            elif n-m==8:
+                for d in range(m+5,n+1):
+                    med+=int(int(volume[d+1])/100000)*avg[d].split(' ')
+                    vol+=int(int(volume[d+1])/100000)
+                med=[eval(i) for i in med]
+                med.sort()
+                med=100*med[int(vol/2)]
+                max1={}            
+                for c in range(m+5,n+1):
+                    W_day[c]=W_day[c]+',  '+str(format(med,'0.2f'))+'%'
+                    dict1={float(W_day[c].split(',')[3].lstrip().replace('%','')):c}
+                    max1.update(dict1)
+                m1=max(max1)
+                best_day.append(W_day[max1[m1]])
+
     
-    W_day.insert(0,'Day of the week '+'min   '+'max   '+'average   '+'median  ')             
-    return W_day[:10]
+    W_day.insert(0,'Day of the week '+'min   '+'max   '+'average   '+'median  ')    
+    best_day.insert(0,'Best day the week '+'min   '+'max   '+'average   '+'median  ')
+         
+    return best_day[:30]
                               
 week_choose()            
 
@@ -98,9 +133,9 @@ week_choose()
 # 2. For each month of the week, compute average, min and max of daily returns
 def month_choose():
     ac,Min,Max,c,Min1,Max1,ac1=0,0,0,0,[],[],[]
-    volume1,vol1,month,month1=0,[],0,[]
+    volume1,vol1,month1=0,[],[]
     date=[]
-    volume,week,l_week=[],[],[]
+    volume=[]
     for i in range(1,len(lines)):
         l_week.append(lines[i].split(',')[4])
         date.append(lines[i].split(',')[0])
@@ -159,9 +194,24 @@ def month_choose():
         else:
             
             Min[i]+=','+str(med3[m])+'%'
+    best_month=[]
+    max1={}
+    for i in range(1,len(Min)):
+        if i%12!=0:          
+            dict1={float(Min[i].split(',')[3].lstrip().replace('%','')):i}
+            max1.update(dict1)   
+            if i==len(Min)-1:
+                m1=max(max1)
+                best_month.append(Min[max1[m1]])   
+        elif i%12==0:
+            m1=max(max1)
+            best_month.append(Min[max1[m1]])   
+            max1={} 
                 
-    Min.insert(0,'Month '+'  min '+'  max '+'average '+'median')            
-    return Min            
+    Min.insert(0,'Month '+'  min '+'  max '+'average '+'median')     
+    best_month.insert(0,'Best month the year '+'min   '+'max   '+'average   '+'median  ')
+                   
+    return best_month            
                 
 month_choose()            
             
@@ -220,22 +270,6 @@ def buy_sell():
     return buy[:20],sell[:20]
 
 buy_sell()    
-
-'''
-Week
-(Adjust_Close2-Adjust_Close1)/Adjust_Close1
-(High2-Adjust_Close1)/Adjust_Close1
-(Low2-Adjust_Close1)/Adjust_Close1
-
-Month
-Adjust_Close=Total Adjust_Close of the Month/Days
-(Adjust_Close2-Adjust_Close1)/Adjust_Close1
-(High2-Adjust_Close1)/Adjust_Close1
-(Low2-Adjust_Close1)/Adjust_Close1
-'''
-
-
-
 
 
 
