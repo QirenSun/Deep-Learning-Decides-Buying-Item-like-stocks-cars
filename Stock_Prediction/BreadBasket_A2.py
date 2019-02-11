@@ -323,22 +323,27 @@ def period_profit():
 period_profit()                            
 
 #popular         
-max_po=[bb['Item'].value_counts().keys()[0]]
-for i in range(1,50):
-    if bb['Item'].value_counts().get(i+1)==bb['Item'].value_counts().get(1):
-        max_po.append(bb['Item'].value_counts().keys()[i+1])
+def popular():
+    max_po=[bb['Item'].value_counts().keys()[0]]
+    for i in range(1,50):
+        if bb['Item'].value_counts().get(i+1)==bb['Item'].value_counts().get(1):
+            max_po.append(bb['Item'].value_counts().keys()[i+1])
+    
+    print('The most popular item: '+''.join(max_po))
+    
+    min_po=[bb['Item'].value_counts().keys()[-1]]
+    
+    for i in range(1,50):
+        if bb['Item'].value_counts().get(-i-1)==bb['Item'].value_counts().get(-1):
+            min_po.append(bb['Item'].value_counts().keys()[-i-1])
+    
+    
+    print('The least popular item: '+', '.join(min_po))
+    return
 
-print('The most popular item: '+''.join(max_po))
+popular()
 
-min_po=[bb['Item'].value_counts().keys()[-1]]
-
-for i in range(1,50):
-    if bb['Item'].value_counts().get(-i-1)==bb['Item'].value_counts().get(-1):
-        min_po.append(bb['Item'].value_counts().keys()[-i-1])
-
-
-print('The least popular item: '+', '.join(min_po))
-            
+        
 #'barista' each day of week
 def barista_num():
     same_day=0
@@ -370,45 +375,119 @@ def barista_num():
 barista_num()
 
 # Combination of 2 items
-
-item=[]
-item_com=[]
-for i in range(1,len(bb)-1):
-    if bb['Transaction'][i]==bb['Transaction'][i+1]:
-        item.append(bb['Item'][i])
-    else:
-        if bb['Transaction'][i]==bb['Transaction'][i-1]:
+def combination_2_items():   
+    item=[]
+    item_com=[]
+    for i in range(1,len(bb)-1):
+        if bb['Transaction'][i]==bb['Transaction'][i+1]:
             item.append(bb['Item'][i])
-            item_com.append(list(set(item)))
-            item=[]
-item=[]            
-for i in range(len(item_com)):
-    if len(item_com[i])>=2:
-        item.append(','.join(item_com[i]))         
-
-item_set=set(item)
-item_count={}
-for i in list(item_set):
-    item_count.update({item.count(i):i})
-item_best=sorted(item_count.items(),reverse=True)[0]
-item_least=sorted(item_count.items(),reverse=True)[-2]
+        else:
+            if bb['Transaction'][i]==bb['Transaction'][i-1]:
+                item.append(bb['Item'][i])
+                item_com.append(list(set(item)))
+                item=[]
+    item=[]            
+    for i in range(len(item_com)):
+        if len(item_com[i])>=2:
+            item.append(','.join(item_com[i]))         
     
-print('The most popular combination of 2 items: '+item_best[1])
-print('The least popular combination of 2 items: '+item_least[1])
+    item_set=set(item)
+    item_count={}
+    for i in list(item_set):
+        item_count.update({item.count(i):i})
+    item_best=sorted(item_count.items(),reverse=True)[0]
+    item_least=sorted(item_count.items(),reverse=True)[-3]
         
+    print('The most popular combination of 2 items: '+item_best[1])
+    print('The least popular combination of 2 items: '+item_least[1])
+    return 
 
+combination_2_items()
+            
+#Food & Drink
+def food_drink():
+    item_set=set(bb['Item'])
+    
+    food=['Alfajores','Bacon','Baguette','Bare Popcorn','Bread','Bread Pudding','Brioche and salami','Brownie','Cake',
+    'Caramel bites','Cherry me Dried fruit','Chicken Stew','Chicken sand','Chocolates', 'Cookies', 'Crepes','Crisps',
+    'Duck egg', 'Eggs', 'Empanadas','Focaccia', 'Frittata', 'Gingerbread syrup', 'Granola', 'Honey', 'Jam', 'Muesli',
+    'Kids biscuit', 'Muffin', 'Pastry', 'Polenta', 'Raspberry shortbread sandwich', 'Raw bars', 'Salad', 'Sandwich',
+    'Scone',  'Spanish Brunch', 'Tacos/Fajita', 'Toast', 'Truffles']
+    print('Food: '+str(food)+'\n')       
+            
+    drink=['Coffee','Coffee granules ','Coke','Hot chocolate', 'Juice', 'Lemon and coconut', 'Mineral water', 'Soup','Smoothies',
+    'Tea']
+    print('Drink: '+str(drink)+'\n')
+    unknown=[]
+    for i in item_set:
+        if i not in food and i not in drink:
+            unknown.append(i)
+    print('Unknown: '+str(unknown)+'\n')
+    
+    f_list=[]
+    f_price=0
+    f_count=0
+    all_f_price=0
+    for f in food:
+        for i in range(len(bb)):
+            if f==bb['Item'][i]:
+                all_f_price+=bb['Item_Price'][i]
+                
+                if f not in set(f_list):             
+                    f_price+=bb['Item_Price'][i]
+                    f_count+=1
+                f_list.append(bb['Item'][i])
+    f_avg=f_price/f_count       
+    print('Foods average price:'+format(f_avg,'0.2f'))
+    print('Foods total price:'+format(all_f_price,'0.2f'))
+    
+    
+    
+    d_list=[]
+    d_price=0
+    d_count=0
+    all_d_price=0
+    for d in drink:
+        for i in range(len(bb)):
+            if d==bb['Item'][i]:
+                all_d_price+=bb['Item_Price'][i]
+                
+                if d not in set(d_list):             
+                    d_price+=bb['Item_Price'][i]
+                    d_count+=1
+                d_list.append(bb['Item'][i])
+    d_avg=d_price/d_count    
+    print('Drinks average price:'+format(d_avg,'0.2f'))
+    print('Drinks total price:'+format(all_d_price,'0.2f'))
+    return   
 
+food_drink()
 
-
+#Group size
+def group_size():
+    drink=['Coffee','Coffee granules ','Coke','Hot chocolate', 'Juice', 'Lemon and coconut', 'Mineral water', 'Soup','Smoothies',
+    'Tea']
+    count,tran_count=0,[]
+    for i in range(1,len(bb)-1):
+        if bb['Transaction'][i]==bb['Transaction'][i+1]:
+            if bb['Item'][i] in drink:
+                count+=1
         
-        
+        elif bb['Transaction'][i-1]==bb['Transaction'][i]:           
+            if bb['Item'][i] in drink:
+                count+=1
+            tran_count.append(count)
+            count=0    
+    
+    cou={}
+    for i in set(tran_count):
+        n=tran_count.count(i)    
+        cou.update({i:n})
+    
+    group='Group size:'+  str( cou  )  
+    return group
 
-
-
-
-
-
-
+group_size()
 
 
 
