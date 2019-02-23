@@ -43,21 +43,24 @@ def year_pro(year,k):
             last_day=i
     
     profit=0
+    num=0
     
     for i in range(last_day-sum_year+1,last_day+1):
         if df['Adj Close'][i]< df['Short_MA'][i]-k*df['Short_std'][i]:
             #lines[i+1]+=','+(format(df['Adj Close'][i],'0.2f'))
             profit+=float(format(100/df['Adj Close'][i],'0.2f'))
             last_adj=df['Adj Close'][i]
+            num-=0
         elif df['Adj Close'][i]> df['Short_MA'][i]+k*df['Short_std'][i]:
             #lines[i+1]+=','+(format(-df['Adj Close'][i],'0.2f'))
             profit+=float(format(-100/df['Adj Close'][i],'0.2f'))
             last_adj=df['Adj Close'][i]
+            num+=0
         else:
             #lines[i+1]+=','+('0')
             last_adj=df['Adj Close'][i]
     #lines[0]+=',Trading'
-    profit_year=float(format(profit*last_adj,'0.2f'))    
+    profit_year=float(format(profit*last_adj+num*100,'0.2f'))    
     return profit_year    
     
 #year_pro(year=eval(input('Year: ')),k=eval(input('k: ')))    
@@ -66,7 +69,7 @@ def hyper():
     k=[0.5,1,1.5,2,2.5,3,3.5]
     profit_list=[]
     for i in k:    
-        profit_list.append(year_pro(2018,i)) #Change Year Here
+        profit_list.append(year_pro(2016,i)) #Change Year Here
     return profit_list
 
 
@@ -145,17 +148,19 @@ def year_pro_a3(year):
             last_day=i
     
     profit=0
-    
+    num=0
     for i in range(last_day-sum_year+1,last_day+1):
         if df['Short_MA'][i]> df['Long_MA'][i]:
             profit+=float(format(100/df['Adj Close'][i],'0.2f'))
             last_adj=df['Adj Close'][i]
+            num-=1
         elif df['Short_MA'][i]< df['Long_MA'][i]:
             profit+=float(format(-100/df['Adj Close'][i],'0.2f'))
             last_adj=df['Adj Close'][i]
+            num+=1
         else:
             last_adj=df['Adj Close'][i]
-    profit_year=float(format(profit*last_adj,'0.2f'))    
+    profit_year=float(format(profit*last_adj+100*num,'0.2f'))    
     return profit_year    
 
 
@@ -181,7 +186,7 @@ for i in range(10,101,10):
     for m in range(i+10,101,10):
         l_window=m
         df = get_stock(ticker, start_date, end_date, s_window, l_window)
-        pro.append(year_pro_a3(2014)) #Change the year here
+        pro.append(year_pro_a3(2018)) #Change the year here
         trade.update({i:pro})
     pro=[]
         
