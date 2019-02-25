@@ -177,8 +177,9 @@ df = get_stock_turtle(ticker, start_date, end_date, s_window, l_window)
 
 #with open(output_file) as f:
     #lines = f.read().splitlines()
-
+'''
 #Generate labels and get the year's profit
+'''
 def year_pro_turtle(year):    
     sum_year=0
     for i in range(len(df)):
@@ -244,43 +245,127 @@ def labels(year):
 
 for year in range(2014,2019):
     year_pro_turtle(year)
+'''
+For each week, compute the weekly return and weekly standard deviation
+For 2018 you labeled your dataset (green and red) for each week
+52 labelled weeks for 2018
+(a)	Add more labels (at least for 2017)
+(b)	Plot your labels as follows:
+'''
+from pandas.core.frame import DataFrame
 
-#2018(1007 : 1258)
+def week(year):
+    sum_year=0
+    for i in range(len(df)):
+        if df['Year'][i]==year:
+            sum_year+=1
+            last_day=i
+    start=last_day-sum_year+1
+    end=last_day+1
+    weekday=[]
+    for i in range(start,end):
+        weekday.append(df['Weekday'][i])
+    
+    week_list=list(range(60))
+    coin=0
+    dict1={}
+    m,x_mean,x_std=0,[],[]
+    seq,cou=[],0
+    for i in range(start,end):
+        if df['Weekday'][i]=='Monday':
+            m=i
+        elif df['Weekday'][i]=='Friday':
+            n=i
+            if n-m<=4:
+                for d in range(m,n+1):
+                    coin+=df['Adj Close'][d]*df['Labels'][d]
+                x_mean.append(df['Return'][m:n+1].mean())
+                x_std.append(df['Return'][m:n+1].std())
+                cou+=1
+                seq.append('R'+str(cou))
+                if coin>=0:
+                    dict1.update({week_list[0]:coin})
+                    week_list.pop(0)
+                    coin=0
+                else:
+                    dict1.update({week_list[0]:coin})
+                    week_list.pop(0)
+                    coin=0
+            elif n-m==8:
+                for d in range(m+5,n+1):
+                    coin+=df['Adj Close'][d]*df['Labels'][d]
+                x_mean.append(df['Return'][m+5:n+1].mean())
+                x_std.append(df['Return'][m+5:n+1].std())
+                cou+=1
+                seq.append('R'+str(cou))                        
+                if coin>=0:
+                    dict1.update({week_list[0]:coin})
+                    week_list.pop(0)
+                    coin=0
+                else:
+                    dict1.update({week_list[0]:coin})
+                    week_list.pop(0)                
+                    coin=0
+        
+    data_1={'Week':seq,'Week_Mean':x_mean,'Week_std':x_std}
+    stock_week=DataFrame(data_1)    
+    
+    x_s=[]
+    y_l=[]  
+    for x,y in dict1.items():
+        x_s.append(x)
+        y_l.append(y)
+    y_l=np.array(y_l)
+    
+    
+    color=np.where(y_l <= 0, y_l, 1)
+    color=np.where(color >0, color, 0)
+    colors=np.array(['r','g'])
+    
+    
+    data = {'a':range(len(x_s)),
+            'b':x_s,
+            #'c':color.flatten().astype(int),
+            'd':abs(y_l)
+            }
+    
+    plt.scatter('a','b',c=colors[color.flatten('F').astype(int)],s='d', data=data)
+    plt.xlabel('Week')
+    plt.ylabel('')
+    fig = plt.gcf()
+    input_dir = r'C:\Users\Administrator\Desktop\Python_data'
+    file_name = os.path.join(input_dir, str(year)+'labaled_weeks.pdf')
+    fig.savefig(file_name)
+    
+    fig.show()
+    
+    return stock_week
 
-sum_year=0
-for i in range(len(df)):
-    if df['Year'][i]==2017:
-        sum_year+=1
-        last_day=i
-start=last_day-sum_year+1
-end=last_day+1
-weekday=[]
-for i in range(start,end):
-    weekday.append(df['Weekday'][i])
+week(2017)
 
-week_list=list(range(60))
-coin=0
-dict1={}
-m=0
-for i in range(start,end):
-    if df['Weekday'][i]=='Monday':
-        m=i
-    elif df['Weekday'][i]=='Friday':
-        n=i
-        if n-m<=4:
-            for d in range(m,n+1):
-                coin+=df['Adj Close'][d]*df['Labels'][d]
-            if coin>=0:
-                dict1.update({week_list[0]:coin})
-                week_list.pop(0)
-                coin=0
-            else:
-                dict1.update({week_list[0]:coin})
-                week_list.pop(0)
-                coin=0
-        elif n-m==8:
-            for d in range(m+5,n+1):
-                coin+=df['Adj Close'][d]*df['Labels'][d]
+
+'''
+For each week in 2018, 
+compute weekly return (Fri-Fri) and plot it together with your label on a graph:
+'''
+def week_return(year):
+    
+    sum_year=0
+    for i in range(len(df)):
+        if df['Year'][i]==year:
+            sum_year+=1
+            last_day=i
+    start=last_day-sum_year+1
+    end=last_day+1
+    
+    week_list=list(range(60))
+    return_w,coin,num,dict1=[],0,0,{}
+    for i in range(start,end):
+        if df['Weekday'][i]=='Friday':
+            m=i
+            return_w.append(df['Adj Close'][i])
+            for n in range(num,m+1):
+                coin+=df['Adj Close'][n]*df['Labels'][n]
             if coin>=0:
                 dict1.update({week_list[0]:coin})
                 week_list.pop(0)
@@ -288,39 +373,48 @@ for i in range(start,end):
             else:
                 dict1.update({week_list[0]:coin})
                 week_list.pop(0)                
-                coin=0
-
-
-x_s=[]
-y_l=[]  
-for x,y in dict1.items():
-    x_s.append(x)
-    y_l.append(y)
-y_l=np.array(y_l)
-
-
-color=np.where(y_l <= 0, y_l, 1)
-color=np.where(color >0, color, 0)
-colors=np.array(['g','r'])
-
-
-data = {'a':range(50),
-        'b':x_s,
-        #'c':color.flatten().astype(int),
-        'd':abs(y_l)
-        }
-
-plt.scatter('a','b',c=colors[color.flatten('F').astype(int)],s='d', data=data)
-plt.xlabel('Week')
-plt.ylabel('')
-fig = plt.gcf()
-input_dir = r'C:\Users\Administrator\Desktop\Python_data'
-file_name = os.path.join(input_dir, 'labaled_weeks.pdf')
-fig.savefig(file_name)
-
-fig.show()
-
-
-
+                coin=0           
+        num=i
+    
+    w={'Adj Close':return_w}
+    w_return=DataFrame(w)
+    w_return['Return']=w_return['Adj Close'].pct_change()
+    w_return['Return'].fillna(0, inplace = True)        
+    
+    
+    x_s=[]
+    y_l=[]  
+    for x,y in dict1.items():
+        x_s.append(x)
+        y_l.append(y)
+    y_l=np.array(y_l)
+    
+    
+    color=np.where(y_l <= 0, y_l, 1)
+    color=np.where(color >0, color, 0)
+    colors=np.array(['r','g'])
+    
+    
+    data = {'a':range(len(w_return['Return'])),
+            'b':range(len(w_return['Return'])),
+            'd':abs(w_return['Return']*300)
+            }
+    
+    plt.scatter('a','b',c=colors[color.flatten('F').astype(int)],s='d', data=data)
+    plt.xlabel('Week')
+    plt.ylabel('')
+    fig = plt.gcf()
+    input_dir = r'C:\Users\Administrator\Desktop\Python_data'
+    file_name = os.path.join(input_dir, str(year)+'_Return_weeks.pdf')
+    fig.savefig(file_name)
+    
+    fig.show()
+    return
+    
+week_return(2018)    
+    
+    
+    
+    
 
 
