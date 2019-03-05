@@ -42,8 +42,8 @@ def get_stock_turtle(ticker, start_date, end_date, s_window, l_window):
 
 ticker='S'
 start_date='2014-01-01'
-end_date='2019-01-01'
-s_window = 20
+end_date='2019-02-28'
+s_window = 15
 l_window = 80
 input_dir = 'C:\\Users\\Administrator\\Desktop\\Python_data'
 output_file = os.path.join(input_dir, ticker + '.csv')
@@ -120,7 +120,7 @@ def labels(year):
 
     return df    
 
-for year in range(2014,2019):
+for year in range(2014,2020):
     year_pro_turtle(year)
 '''
 For each week, compute the weekly return and weekly standard deviation
@@ -260,8 +260,11 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from matplotlib.ticker import MaxNLocator
-
-
+'''
+#Training Set
+#Testing Set
+#Valid Set
+'''
 def train(year):
     week(year)
     global x_train,y_train
@@ -277,20 +280,41 @@ def test(year):
     y_test=stock['Label'].values
     return
 
+def vaild(year):
+    week(year)
+    global x_vaild,y_vaild
+    stock=stock_week
+    x_vaild=stock[['Week_Mean','Week_std']].values
+    y_vaild=stock['Label'].values
+    return
+    
+
 train(2017)
 test(2018)
+vaild(2019)
 '''
 Training Set
 Testing Set
+Vaild Set
 KNN impelement
 '''
 
-Y=np.insert(y_train, 0, values=y_test, axis=0)
-X=np.insert(x_train, 0, values=x_test, axis=0)
+Y=np.insert(y_test, 0, values=y_train, axis=0)
+X=np.insert(x_test, 0, values=x_train, axis=0)
+X=np.insert(x_vaild,0,values=X,axis=0)
+Y=np.insert(y_vaild,0,values=Y,axis=0)
 le=LabelEncoder()
 z=StandardScaler().fit_transform(X)
 Y=le.fit_transform(Y)
-X_train,X_test,Y_train,Y_test=train_test_split(z,Y,test_size=0.5,random_state=0)
+X_train,X_test,Y_train,Y_test=train_test_split(z,Y,test_size=0.5,shuffle=False)
+#X_train,X_test,Y_train,Y_test=X[:int(len(X)*0.5),:],X[int(len(X)*0.5):,:],Y[:int(len(Y)*0.5)],Y[int(len(Y)*0.5):]
+X_vaild=X_test[-len(x_vaild):,:]
+Y_vaild=Y_test[-len(y_vaild):]
+X_test=X_test[:-len(x_vaild),:]
+Y_test=Y_test[:-len(y_vaild)]
+
+
+
 error_rate=[]
 for k in range(1,31,2):
     knn_classifier= KNeighborsClassifier(n_neighbors=k)
@@ -312,13 +336,17 @@ plt.xlabel('number of neighbors: k')
 plt.ylabel('Error Rate')
 
 
-knn_classifier= KNeighborsClassifier(n_neighbors=17)
+#Prediction
+num=error_rate.index(min(error_rate))
+knn_classifier= KNeighborsClassifier(n_neighbors=2*num+1)
 knn_classifier.fit(X_train,Y_train)
-new_instance=######
+new_instance=X_vaild
 prediction=knn_classifier.predict(new_instance)
 
 
-
+print('2019 Prediction: ',prediction)
+print('2019 Valid: ', Y_vaild)
+print('2019 Correct', np.mean(prediction==Y_vaild))
 
 
 
