@@ -247,16 +247,27 @@ data = {'a':df['Return'][start:end],
 plt.scatter('b','a',c=colors[color.flatten('F').astype(int)], data=data)
 plt.xlabel('Overnight Return')
 plt.ylabel('Daily Return')
-'''
+
 pro=[]
-for R in range(0,11):
+for R in range(-10,11):
     profit=0
     for i in range(start,end):
-        if df['ON return'][i]>0 and (df['Open'][i]-df['Adj Close'][i-1])>R:
-            shares=100/df['Open'][i]
-            profit+=(-df['Open'][i]+df['Close'][i])*shares
-        elif df['ON return'][i]<0 and (df['Open'][i]-df['Adj Close'][i-1])<-R:
-            shares=100/df['Open'][i]
-            profit+=(df['Open'][i]-df['Close'][i])*shares
+        if R>=0:
+            if df['ON return'][i]>R/100:
+                shares=100/df['Open'][i]
+                profit+=(-df['Open'][i]+df['Close'][i])*shares
+            elif df['ON return'][i]<0:
+                shares=100/df['Open'][i]
+                profit+=(df['Open'][i]-df['Close'][i])*shares
+        else:
+            if df['ON return'][i]>0:
+                shares=100/df['Open'][i]
+                profit+=(-df['Open'][i]+df['Close'][i])*shares
+            elif df['ON return'][i]<R/100:
+                shares=100/df['Open'][i]
+                profit+=(df['Open'][i]-df['Close'][i])*shares
+
     pro.append(profit)
-'''
+plt.scatter(range(-10,11),pro)
+plt.xlabel('R')
+plt.ylabel('P/L')

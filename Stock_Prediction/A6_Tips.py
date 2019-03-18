@@ -11,8 +11,9 @@ import matplotlib.pyplot as plt
 tips=pd.read_csv(r'C:\Users\Administrator\Desktop\Python_data\tips.csv')
 
 #1.	Are tips higher for lunch or dinner?
-dinner=(tips.loc[tips['time'] == 'Dinner'])['tip'].sum()
-lunch=(tips.loc[tips['time'] == 'Lunch'])['tip'].sum()
+tips['per']=tips['tip'][:]/tips['total_bill'][:] 
+dinner=(tips.loc[tips['time'] == 'Dinner'])['per'].mean()
+lunch=(tips.loc[tips['time'] == 'Lunch'])['per'].mean()
 if dinner > lunch:
     print('Dinner is higher than lunch.')
 else:
@@ -25,8 +26,8 @@ d_tip,l_tip=[],[]
 dinner=(tips.loc[tips['time'] == 'Dinner'])
 lunch=(tips.loc[tips['time'] == 'Lunch'])
 for i in day:
-    d_tip.append((dinner.loc[ tips['day']==i])['tip'].sum())
-    l_tip.append((lunch.loc[ tips['day']==i])['tip'].sum())
+    d_tip.append((dinner.loc[ tips['day']==i])['per'].mean())
+    l_tip.append((lunch.loc[ tips['day']==i])['per'].mean())
 
 if max(d_tip)>max(l_tip):
     print('Day: ',day[d_tip.index(max(d_tip))],'\nTime: Dinner')
@@ -80,15 +81,17 @@ print('Smokers may give more tips.')
 day=['Thur','Sun','Sat','Fri']
 wd_tip=[]
 for i in day:
-    wd_tip.append((tips.loc[ tips['day']==i])['tip'].sum())
+    wd_tip.append((tips.loc[ tips['day']==i])['per'].mean())
 for i in range(len(day)):
     print(day[i],'tips: ',wd_tip[i])
 
 
 #10.Which gender smokes more?
 smoker=tips.loc[tips['smoker'] == 'Yes']
-s_m=smoker.loc[smoker['sex']=='Male']['size'].sum()
-s_f=smoker.loc[smoker['sex']=='Female']['size'].sum()
+m=tips.loc[tips['sex']=='Male']['size'].sum()
+fm=tips.loc[tips['sex']=='Female']['size'].sum()
+s_m=(smoker.loc[smoker['sex']=='Male']['size'].sum())/m
+s_f=(smoker.loc[smoker['sex']=='Female']['size'].sum())/fm
 print('Male smokes more')
 
 
