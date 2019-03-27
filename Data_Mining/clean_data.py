@@ -21,7 +21,7 @@ for i in range(0,len(dm),50):
     num+=1
 
 for i in range(0,len(dm)):
-    if dm['rankPosition'][i] >20:
+    if dm['rankPosition'][i] >25:
         dm['rankPosition'][i]=0
     else:
         dm['rankPosition'][i]=1
