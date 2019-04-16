@@ -113,6 +113,5 @@ for l in [0.01,0.02,0.03,0.04,0.05]:
     poly(10,l)
 #plot_regression(x,y,slope,intercept)
 
-    
 
 
