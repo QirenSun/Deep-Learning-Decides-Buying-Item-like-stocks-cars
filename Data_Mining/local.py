@@ -38,21 +38,10 @@ def get_all_region_descriptions(data_dir=None):
     return output
     
     
-def relation_test(data_dir=None):
-    if data_dir is None:
-        data_dir = utils.get_data_dir()
-    data_file = os.path.join(data_dir, 'attributes.json')
-    image_data = get_all_image_data(data_dir)
-    image_map = {}
 
-    images = json.load(open(data_file))
-    #output = []
-    #output.append(utils.parse_graph(images[0], image_map[images[0]['image_id']]))
-    return images
-    
 def get_all_attributes(data_dir=None):
     """
-    Get all relationships.
+    Get all attributes.
     """
     if data_dir is None:
         data_dir = utils.get_data_dir()

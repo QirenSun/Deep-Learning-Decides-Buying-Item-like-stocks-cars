@@ -117,16 +117,38 @@ class Relationship:
         rel_canon  Synset
     """
 
-    def __init__(self, id, image, subject, predicate, object, synsets,phrase=''):
+    def __init__(self, id, subject, predicate, object, synset):
+        self.id = id
+        self.subject = subject
+        self.predicate = predicate
+        self.object = object
+        self.synset = synset
+
+    def __str__(self):
+        return "{0}: {1} {2} {3}".format(self.id, self.subject,
+                                         self.predicate, self.object)
+
+    def __repr__(self):
+        return str(self)
+
+class Relationships:
+    """
+    Relationships. Ex, 'man - jumping over - fire hydrant'.
+        subject    int
+        predicate  string
+        object     int
+        phrase     string
+        rel_canon  Synset
+        image      int
+    """
+
+    def __init__(self, id, image, subject, predicate, object, synsets):
         self.id = id
         self.image = image
         self.subject = subject
         self.predicate = predicate
         self.object = object
         self.synsets = synsets
-        self.phrase=''
-
-    def __str__(self):       
         if self.object.get('names')!=None:
             object1=''.join(self.object.get('names'))
         else:
@@ -135,8 +157,12 @@ class Relationship:
             subject=''.join(self.subject.get('names'))
         else:
             subject=self.subject.get('name')
-        predicate=self.predicate
-        self.phrase=subject+' '+predicate.lower()+' '+object1
+        #predicate=self.predicate
+        self.phrase=subject+' '+self.predicate.lower()+' '+object1     
+  
+        
+
+    def __str__(self):        
         stat_str = 'id: {0}, subject: {1}, object: {2}, predicate: {3},' \
                    ' phrase: {4}, image: {5}'
         return stat_str.format(self.id, self.subject,self.predicate, self.object,self.phrase,self.image.id)
@@ -158,6 +184,28 @@ class Attribute:
         self.id = id
         self.subject = subject
         self.attribute = attribute
+        self.synset = synset
+
+    def __str__(self):
+        return "%d: %s is %s" % (self.id, self.subject, self.attribute)
+
+    def __repr__(self):
+        return str(self)
+
+
+class Attributes:
+    """
+    Attributes. Ex, 'man - old'.
+      subject    Object
+      attribute  string
+      synset     Synset
+    """
+
+    def __init__(self, id, image,subject,w,h,x,y, attribute, synset):
+        self.id = id
+        self.image=image
+        self.subject = ''.join(subject)
+        self.attribute = ', '.join(attribute)
         self.synset = synset
 
     def __str__(self):

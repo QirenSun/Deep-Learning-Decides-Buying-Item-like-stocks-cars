@@ -3,7 +3,7 @@ import json
 import requests
 from os.path import dirname, realpath, join
 from visual_genome.models import (Image, Object, Attribute, Relationship,
-                                  Region, Graph, QA, QAObject, Synset)
+                                  Region, Graph, QA, QAObject, Synset,Attributes,Relationships)
 
 
 def get_data_dir():
@@ -105,22 +105,22 @@ def parse_region_descriptions(data, image):
 
 def parse_relationships(data,image):
     """
-    Helper to parse region descriptions.
+    Helper to parse relationships.
     """
     relationships = []
     for info in data:
-        relationships.append(Relationship(info['relationship_id'], image, info['subject'],
+        relationships.append(Relationships(info['relationship_id'], image, info['subject'],
                               info['predicate'], info['object'],info['synsets']))
     return relationships
 
 def parse_attributes(data,image):
     """
-    Helper to parse region descriptions.
+    Helper to parse attributes.
     """
     attributes = []
     for info in data:
-        attributes.append(Attribute(info['attribute_id'], image, info['subject'],
-                              info['attribute'],info['synsets']))
+        attributes.append(Attributes(info['object_id'], image, info['names'],info['w'],info['h'],
+                              info['x'],info['y'],info['attributes'] if 'attributes' in info else '',info['synsets']))
     return attributes
 
 
